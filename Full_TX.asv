@@ -1,0 +1,42 @@
+OSR=4 ;       % Sampling rate (Hz)
+fc = 2000;           % Cutoff frequency (Hz)
+N = 17;             % Filter order (taps = N+1)
+beta = 0.5; 
+Rs = 1.98e6;% Roll-off factor
+fs = Rs * OSR;
+
+
+
+bits = randi([0, 1], 1, 22400);
+bitsPerVector = 2240;
+n = length(bits)/bitsPerVector;
+final_bit_stream=[];
+symbols=[];
+bitMatrix = reshape(bits, bitsPerVector, n).';
+
+preamble=Barker_Sequance();
+for i=1:n
+    bitstream=bitMatrix(i,:);
+    disp(size(bitstream));
+    stream=[preamble,bitstream];
+    final_bit_stream=[final_bit_stream,stream];
+end
+%%
+for i = 1:2:length(final_bit_stream)-1
+    bit1 = final_bit_stream(i);
+    bit2 = final_bit_stream(i+1);
+    
+    % Do something with bit1 and bit2
+    
+    symbols(end+1)=QPSK_TX(bit1,bit2);
+end
+%%
+upfactor=3;
+
+filter_coeffs = RRC_FILTER_TX(fs, Rs, N, beta);
+upsampled_symbols=upsample(symbols,upfactor);
+final_output=conv(filter_coeffs,upsampled_symbols);
+%%
+
+freqz(final_output, 1, 1024, fs);
+title('signal after filtration');

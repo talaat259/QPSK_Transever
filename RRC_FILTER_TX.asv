@@ -1,0 +1,37 @@
+function RRC_TX=RRC_FILTER_TX(sampling_rate,cuttoff,number_of_tabs,rolloff_factor)
+fs=sampling_rate;
+fc=cuttoff;
+N=number_of_tabs;
+beta=rolloff_factor;
+wn = fc / (fs / 2);
+b=zeros(1,N+1);
+for n=0:N
+    if n==N/2
+        b(n+1)=wn;
+    else
+         b(n+1) = sin(2 * pi * wn * (n - N/2)) / (pi * (n - N/2));
+    end
+end
+
+n = -N/2 : N/2;  % Time indices
+    rrc_window = zeros(1, N+1);
+    for i = 1:N+1
+        t = n(i) / (N/2);  % Normalized time [-1, 1]
+        if t == 0
+            rrc_window(i) = 1 - beta + (4*beta/pi);
+        elseif abs(t) == 1/(4*beta)
+            term1 = (1 + 2/pi) * sin(pi/(4*beta));
+            term2 = (1 - 2/pi) * cos(pi/(4*beta));
+            rrc_window(i) = (beta/sqrt(2)) * (term1 + term2);
+        else
+            term1 = sin(pi * t * (1 - beta));
+            term2 = 4 * beta * t * cos(pi * t * (1 + beta));
+            denom = pi * t * (1 - (4 * beta * t)^2);
+            rrc_window(i) = (term1 + term2) / denom;
+        end
+    end
+    rrc_window = rrc_window / sqrt(sum(rrc_window.^2));  % Normalize energy
+
+
+ RRC_TX = b_ideal .* rrc_window;
+end
