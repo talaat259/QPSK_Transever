@@ -6,9 +6,9 @@ Rs = 1.98e6;% Roll-off factor
 fs = Rs * OSR;
 
 %original number of bits=22400
-
-bits = randi([0, 1], 1, 22400);
-bitsPerVector = 2240;
+n=10
+bits = randi([0, 1], 1, n);
+bitsPerVector = 1;
 n = length(bits)/bitsPerVector;
 final_bit_stream=[];
 symbols=[];
@@ -42,6 +42,31 @@ freqz(final_output, 1, 1024, fs);
 title('signal after filtration');
 %%
 % After RRC filtering
-plot(final_output);
+plot(real(final_output));
 xlabel('Time'); ylabel('Amplitude');
 title('Time-Domain Signal After RRC Filtering');
+%% channel is here but will be implemented whe  rx produces the correct bitsream
+%%
+bits_at_RX=[];
+RX_start_sig=conv(filter_coeffs,final_output);
+downsampled=downsample(RX_start_sig,upfactor);
+for i = 1:length(downsampled)
+    S = downsampled(i);
+    
+    % Do something with value
+    [bit2,bit1]=QPSK_Demapper(s)
+    bits_at_RX=[bits_at_RX,bit1];
+    bits_at_RX=[bits_at_RX,bit2];
+end
+n_bits_matrix=reshape(bits_at_RX,n,[]);
+no_preamable_bits=[]
+for i = 1:size(n_bits_matrix, 1)
+    row = n_bits_matrix(i, :);
+    no_preamable_bits=[no_preamable_bits,row(24:end)]
+    disp(length(no_preamable_bits))
+    % (no implementation inside the loop as requested)
+end
+
+%length(no_preamable_bits)
+%length(bits)
+%xor(bits_at_RX,bits)

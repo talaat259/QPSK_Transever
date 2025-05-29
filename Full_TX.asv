@@ -5,10 +5,10 @@ beta = 0.5;
 Rs = 1.98e6;% Roll-off factor
 fs = Rs * OSR;
 
-
-
-bits = randi([0, 1], 1, 22400);
-bitsPerVector = 2240;
+%original number of bits=22400
+n=10
+bits = randi([0, 1], 1, n);
+bitsPerVector = 1;
 n = length(bits)/bitsPerVector;
 final_bit_stream=[];
 symbols=[];
@@ -40,3 +40,26 @@ final_output=conv(filter_coeffs,upsampled_symbols);
 
 freqz(final_output, 1, 1024, fs);
 title('signal after filtration');
+%%
+% After RRC filtering
+plot(real(final_output));
+xlabel('Time'); ylabel('Amplitude');
+title('Time-Domain Signal After RRC Filtering');
+%% channel is here but will be implemented whe  rx produces the correct bitsream
+%%
+bits_at_RX=[];
+RX_start_sig=conv(filter_coeffs,final_output);
+downsampled=downsample(RX_start_sig,upfactor);
+for i = 1:length(downsampled)
+    S = downsampled(i);
+    
+    % Do something with value
+    [bit2,bit1]=QPSK_Demapper(s)
+    bits_at_RX=[bits_at_RX,bit1];
+    bits_at_RX=[bits_at_RX,bit2];
+end
+n_bits=reshape(bits_at_RX,n,[]);
+
+length(bits_at_RX)
+length(bits)
+xor(bits_at_RX,bits)
