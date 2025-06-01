@@ -26,3 +26,4 @@ Implementing time synchronization to align received symbols accurately in time.
 Incorporating channel emulation to test the robustness of the transceiver under various noise and interference conditions.
 
 The final outcome will be a functional, real-time QPSK transceiver system implemented on FPGA, demonstrating both the theoretical and practical aspects of modern digital communication design.
+![QPSK_Transiver](https://github.com/user-attachments/assets/d2dea7f3-093a-436b-8464-0b25a0ec3a1b)
